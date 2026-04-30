@@ -12,8 +12,15 @@ float ReadDispHeight(vec2 atlasCoord) {
     return dot(s, vec3(0.2125, 0.7154, 0.0721));
 }
 
+// Half-texel inset prevents bilinear/mipmap filtering from pulling pixels of the
+// adjacent atlas sprite when the displaced coord lands at a sprite edge.
+vec2 SpriteToAtlasClamped(vec2 lc) {
+    vec2 inset = 0.5 / (vTexCoordAM.pq * vec2(atlasSize));
+    return clamp(fract(lc), inset, 1.0 - inset) * vTexCoordAM.pq + vTexCoordAM.st;
+}
+
 vec2 GetGeneratedDisplacementCoord(float fade, float dither) {
-    vec2 origAtlas = vTexCoord.st * vTexCoordAM.pq + vTexCoordAM.st;
+    vec2 origAtlas = SpriteToAtlasClamped(vTexCoord.st);
 
     if (viewVector.z >= 0.0 || fade >= 1.0) return origAtlas;
 
@@ -30,11 +37,9 @@ vec2 GetGeneratedDisplacementCoord(float fade, float dither) {
         if (h > 1.0 - i * invQ) break;
         i += 1.0;
         if (i >= quality) break;
-        vec2 lc = vTexCoord.st + i * interval;
-        vec2 ac = fract(lc) * vTexCoordAM.pq + vTexCoordAM.st;
-        h = ReadDispHeight(ac);
+        h = ReadDispHeight(SpriteToAtlasClamped(vTexCoord.st + i * interval));
     }
 
     float pI = max(i - 1.0, 0.0);
-    return fract(vTexCoord.st + pI * interval) * vTexCoordAM.pq + vTexCoordAM.st;
+    return SpriteToAtlasClamped(vTexCoord.st + pI * interval);
 }

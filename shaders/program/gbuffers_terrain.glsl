@@ -235,7 +235,11 @@ void main() {
             float dispFade = pow2(lViewPos / float(GENERATED_DISPLACEMENT_DISTANCE));
             if (dispFade < 1.0 && viewVector.z < 0.0) {
                 vec2 dispCoord = GetGeneratedDisplacementCoord(dispFade, dither);
-                color = texture2D(tex, dispCoord);
+                // textureGrad with the *original* coord's derivatives picks the right
+                // mip; sampling with texture2D would derive mip from the displaced
+                // coord, whose derivatives spike at fract() discontinuities and pull
+                // wrong atlas content from low-res mip levels.
+                color = textureGrad(tex, dispCoord, dcdx, dcdy);
                 color.rgb *= glColor.rgb;
                 colorP = color.rgb;
             }
