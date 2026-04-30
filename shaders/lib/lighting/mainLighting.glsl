@@ -325,7 +325,9 @@ void DoLighting(inout vec4 color, inout vec3 shadowMult, vec3 playerPos, vec3 vi
     if (!noSmoothLighting) {
         float lightmapXMSteep = pow2(pow2(lightmap.x * lightmap.x))  * (2.8 - 0.6 * vsBrightness + XLIGHT_CURVE);
         float lightmapXMCalm = (lightmap.x) * (2.8 + 0.6 * vsBrightness - XLIGHT_CURVE);
-        lightmapXM = pow(lightmapXMSteep + lightmapXMCalm, 2.25);
+        // pow(x, 2.25) == x*x * sqrt(sqrt(x)); two hardware sqrts beat a transcendental pow on Apple GPU
+        float lxSum = lightmapXMSteep + lightmapXMCalm;
+        lightmapXM = lxSum * lxSum * sqrt(sqrt(lxSum));
     } else {
         float xLightCurveM = XLIGHT_CURVE > 0.999 ? XLIGHT_CURVE : sqrt2(XLIGHT_CURVE);
         lightmapXM = pow(lightmap.x, 3.0 * xLightCurveM) * 10.0;
