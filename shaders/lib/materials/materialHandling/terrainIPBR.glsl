@@ -594,7 +594,9 @@ if (mat < 11024) {
                                 }
                             } else {
                                 if (mat < 10236) { // Sand, Suspicious Sand
-                                    smoothnessG = pow(color.g, 16.0) * 2.0;
+                                    // pow(x,16) -> 4 muls
+                                    float sg2 = color.g * color.g; float sg4 = sg2 * sg2; float sg8 = sg4 * sg4;
+                                    smoothnessG = (sg8 * sg8) * 2.0;
                                     smoothnessG = min1(smoothnessG);
                                     smoothnessD = smoothnessG;
                                     highlightMult = 2.0;
@@ -610,7 +612,9 @@ if (mat < 11024) {
                                     #endif
                                 }
                                 else /*if (mat < 10240)*/ { // Red Sand
-                                    smoothnessG = pow(color.r, 10.0);
+                                    // pow(x,10) = x^8 * x^2 -> 4 muls
+                                    float sr2 = color.r * color.r; float sr4 = sr2 * sr2; float sr8 = sr4 * sr4;
+                                    smoothnessG = sr8 * sr2;
                                     smoothnessG = min1(smoothnessG);
                                     smoothnessD = smoothnessG;
                                     highlightMult = 2.0;
@@ -1451,7 +1455,9 @@ if (mat < 11024) {
                                     #include "/lib/materials/specificMaterials/terrain/cobblestone.glsl"
 
                                     float dotColor = dot(color.rgb, color.rgb);
-                                    emission = 2.5 * dotColor * max0(pow2(pow2(pow2(color.r))) - color.b) + pow(dotColor * 0.35, 32.0);
+                                    // pow(x,32) -> 5 muls
+                                    float dc1 = dotColor * 0.35; float dc2 = dc1 * dc1; float dc4 = dc2 * dc2; float dc8 = dc4 * dc4; float dc16 = dc8 * dc8;
+                                    emission = 2.5 * dotColor * max0(pow2(pow2(pow2(color.r))) - color.b) + (dc16 * dc16);
                                     color.r *= 1.0 + 0.1 * emission;
                                 }
                             } else {
