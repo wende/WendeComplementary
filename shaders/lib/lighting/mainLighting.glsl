@@ -217,7 +217,8 @@ void DoLighting(inout vec4 color, inout vec3 shadowMult, vec3 playerPos, vec3 vi
                                 if (subsurfaceMode != 1)
                             #endif
                             {
-                                float distanceBias = pow(dot(playerPos, playerPos), 0.75);
+                                // pow(dot(playerPos,playerPos), 0.75) == lViewPos^1.5; lViewPos already == length(playerPos)
+                                float distanceBias = lViewPos * sqrt(lViewPos);
                                 distanceBias = 0.12 + 0.0008 * distanceBias;
                                 vec3 bias = worldGeoNormal * distanceBias * (2.0 - 0.95 * NdotLmax0); // 0.95 fixes pink petals noon shadows
 
