@@ -125,7 +125,14 @@ vec4 GetVolumetricClouds(int cloudAltitude, float distanceThreshold, inout float
     float VdotSM1M = VdotSM1 * invRainFactor;
     float VdotSM2 = pow2(VdotSM1) * abs(sunVisibility - 0.5) * 2.0;
     float VdotSM3 = VdotSM2 * (2.5 + rainFactor) + 1.5 * rainFactor;
-    float VdotSM4 = pow(VdotSM1M, 100.0) * sunVisibility;
+    // pow(x, 100) = x^64 * x^32 * x^4 -> 8 muls
+    float vsm2 = VdotSM1M * VdotSM1M;
+    float vsm4 = vsm2 * vsm2;
+    float vsm8 = vsm4 * vsm4;
+    float vsm16 = vsm8 * vsm8;
+    float vsm32 = vsm16 * vsm16;
+    float vsm64 = vsm32 * vsm32;
+    float VdotSM4 = (vsm64 * vsm32 * vsm4) * sunVisibility;
 
     #ifdef FIX_AMD_REFLECTION_CRASH
         sampleCount = min(sampleCount, 30); //BFARC
