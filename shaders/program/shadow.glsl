@@ -32,7 +32,9 @@ float sunVisibility = clamp(SdotU + 0.0625, 0.0, 0.125) / 0.125;
 void DoNaturalShadowCalculation(inout vec4 color1, inout vec4 color2) {
     color1.rgb *= glColor.rgb;
     color1.rgb = mix(vec3(1.0), color1.rgb, pow(color1.a, (1.0 - color1.a) * 0.5) * 1.05);
-    color1.rgb *= 1.0 - pow(color1.a, 64.0);
+    // pow(x, 64) -> 6 muls
+    float a2 = color1.a * color1.a; float a4 = a2 * a2; float a8 = a4 * a4; float a16 = a8 * a8; float a32 = a16 * a16;
+    color1.rgb *= 1.0 - a32 * a32;
     color1.rgb *= 0.1; // 423HDSS: Shadow color strength is stored 10 times lower to allow for water shadows going above 1.0
 
     color2.rgb = normalize(color1.rgb) * 0.5;
@@ -158,10 +160,12 @@ void main() {
                     color1.rgb *= color1.rgb;
                     color1.rgb *= color1.rgb;
                     color1.rgb = mix(vec3(1.0), color1.rgb, pow(color1.a, (1.0 - color1.a) * 0.5) * 1.05);
-                    color1.rgb *= 1.0 - pow(color1.a, 64.0);
+                    // pow(x, 64) -> 6 muls; pow(x, 0.25) -> sqrt(sqrt(x))
+                    float ia2 = color1.a * color1.a; float ia4 = ia2 * ia2; float ia8 = ia4 * ia4; float ia16 = ia8 * ia8; float ia32 = ia16 * ia16;
+                    color1.rgb *= 1.0 - ia32 * ia32;
                     color1.rgb *= 0.14; // 423HDSS
 
-                    color2.rgb = normalize(pow(color1.rgb, vec3(0.25))) * 0.5;
+                    color2.rgb = normalize(sqrt(sqrt(color1.rgb))) * 0.5;
                 }
             }
         } else {
