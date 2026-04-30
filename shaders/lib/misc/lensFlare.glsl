@@ -17,7 +17,14 @@ float PointLens(vec2 lightPos, float size, float dist) {
 }
 
 float RingLensTransform(float lensFlare) {
-    return pow(1.0 - pow(1.0 - pow(lensFlare, 0.25), 10.0), 5.0);
+    // pow(x, 0.25) = sqrt(sqrt(x));
+    // pow(_, 10) = x^8 * x^2 -> 4 muls;  pow(_, 5) = x^4 * x -> 3 muls
+    float a = sqrt(sqrt(lensFlare));
+    float b = 1.0 - a;
+    float b2 = b * b; float b4 = b2 * b2; float b8 = b4 * b4;
+    float c = 1.0 - (b8 * b2);
+    float c2 = c * c; float c4 = c2 * c2;
+    return c4 * c;
 }
 float RingLens(vec2 lightPos, float size, float distA, float distB) {
     float lensFlare1 = RingLensTransform(BaseLens(lightPos, size, distA, 1.0));
