@@ -243,7 +243,11 @@ void DoLighting(inout vec4 color, inout vec3 shadowMult, vec3 playerPos, vec3 vi
                                 #endif
                             } else {
                                 float VdotL = dot(nViewPos, lightVec);
-                                float lightFactor = pow(max(VdotL, 0.0), 10.0) * float(isEyeInWater == 0);
+                                // pow(x, 10) -> 4 muls; constant exponent compilers don't always lower this on Metal
+                                float vClamped = max(VdotL, 0.0);
+                                float vSq = vClamped * vClamped;
+                                float vQuad = vSq * vSq;
+                                float lightFactor = vQuad * vQuad * vSq * float(isEyeInWater == 0);
                                 if (subsurfaceMode == 1) {
                                     offset = 0.0005235 * lightmapYM + 0.0009765;
                                     shadowPos.z -= max(NdotL * 0.0001, 0.0) * lightmapYM;
