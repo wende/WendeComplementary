@@ -22,7 +22,7 @@ in vec4 glColor;
     flat in vec2 midCoord;
 #endif
 
-#if defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     flat in vec3 binormal, tangent;
 #endif
 
@@ -51,7 +51,7 @@ float shadowTime = shadowTimeVar2 * shadowTimeVar2;
     vec3 lightVec = sunVec;
 #endif
 
-#if defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     mat3 tbnMatrix = mat3(
         tangent.x, binormal.x, normal.x,
         tangent.y, binormal.y, normal.y,
@@ -213,7 +213,7 @@ out vec4 glColor;
     flat out vec2 midCoord;
 #endif
 
-#if defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     flat out vec3 binormal, tangent;
 #endif
 
@@ -228,7 +228,7 @@ out vec4 glColor;
     attribute vec4 mc_midTexCoord;
 #endif
 
-#if defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     attribute vec4 at_tangent;
 #endif
 
@@ -264,7 +264,7 @@ void main() {
         absMidCoordPos  = abs(texMinMidCoord);
     #endif
 
-    #if defined GENERATED_NORMALS || defined CUSTOM_PBR
+    #if defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
         binormal = normalize(gl_NormalMatrix * cross(at_tangent.xyz, gl_Normal.xyz) * at_tangent.w);
         tangent  = normalize(gl_NormalMatrix * at_tangent.xyz);
     #endif

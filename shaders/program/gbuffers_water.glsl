@@ -26,7 +26,7 @@ in vec3 viewVector;
 
 in vec4 glColor;
 
-#if WATER_STYLE >= 2 || RAIN_PUDDLES >= 1 && WATER_STYLE == 1 && WATER_MAT_QUALITY >= 2 || defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if WATER_STYLE >= 2 || RAIN_PUDDLES >= 1 && WATER_STYLE == 1 && WATER_MAT_QUALITY >= 2 || defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     flat in vec3 binormal, tangent;
 #endif
 
@@ -57,7 +57,7 @@ float shadowTime = shadowTimeVar2 * shadowTimeVar2;
     vec3 lightVec = sunVec;
 #endif
 
-#if WATER_STYLE >= 2 || RAIN_PUDDLES >= 1 && WATER_STYLE == 1 && WATER_MAT_QUALITY >= 2 || defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if WATER_STYLE >= 2 || RAIN_PUDDLES >= 1 && WATER_STYLE == 1 && WATER_MAT_QUALITY >= 2 || defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     mat3 tbnMatrix = mat3(
         tangent.x, binormal.x, normal.x,
         tangent.y, binormal.y, normal.y,
@@ -335,7 +335,7 @@ out vec3 viewVector;
 
 out vec4 glColor;
 
-#if WATER_STYLE >= 2 || RAIN_PUDDLES >= 1 && WATER_STYLE == 1 && WATER_MAT_QUALITY >= 2 || defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if WATER_STYLE >= 2 || RAIN_PUDDLES >= 1 && WATER_STYLE == 1 && WATER_MAT_QUALITY >= 2 || defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     flat out vec3 binormal, tangent;
 #endif
 
@@ -353,7 +353,7 @@ attribute vec4 mc_midTexCoord;
 attribute vec4 at_tangent;
 
 //Common Variables//
-#if WATER_STYLE >= 2 || RAIN_PUDDLES >= 1 && WATER_STYLE == 1 && WATER_MAT_QUALITY >= 2 || defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if WATER_STYLE >= 2 || RAIN_PUDDLES >= 1 && WATER_STYLE == 1 && WATER_MAT_QUALITY >= 2 || defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
 #else
     vec3 binormal;
     vec3 tangent;

@@ -11,6 +11,13 @@
 flat in int mat;
 
 in vec2 texCoord;
+#if defined GENERATED_DISPLACEMENT && !defined GBUFFERS_COLORWHEEL
+    // texCoord is a fragment input (read-only). Shadow it with a writable global so
+    // displacement can update it once and downstream code (terrainIPBR, GenerateNormals,
+    // dFdx/dFdy via dFdxdFdy.glsl) automatically sees the displaced coord.
+    vec2 texCoordWritable = texCoord;
+    #define texCoord texCoordWritable
+#endif
 #ifdef GBUFFERS_COLORWHEEL
     vec2 lmCoord;
 #else
@@ -228,18 +235,15 @@ void main() {
     #endif
 
     #if defined GENERATED_DISPLACEMENT && !defined GBUFFERS_COLORWHEEL
-        // texCoord is a read-only fragment varying, so we only re-sample color at the
-        // displaced atlas coord. GenerateNormals and other neighbor-reads still use the
-        // original coord, which can produce a slight normal/displacement mismatch.
         if (lViewPos < float(GENERATED_DISPLACEMENT_DISTANCE)) {
             float dispFade = pow2(lViewPos / float(GENERATED_DISPLACEMENT_DISTANCE));
             if (dispFade < 1.0 && viewVector.z < 0.0) {
-                vec2 dispCoord = GetGeneratedDisplacementCoord(dispFade, dither);
-                // textureGrad with the *original* coord's derivatives picks the right
-                // mip; sampling with texture2D would derive mip from the displaced
-                // coord, whose derivatives spike at fract() discontinuities and pull
-                // wrong atlas content from low-res mip levels.
-                color = textureGrad(tex, dispCoord, dcdx, dcdy);
+                // texCoord is the macro-shadowed mutable global; assigning here makes
+                // every downstream sample (color, GenerateNormals, etc.) see the
+                // displaced coord. dcdx/dcdy stay frozen at original derivatives so
+                // textureGrad picks the right mip near sprite seams.
+                texCoord = GetGeneratedDisplacementCoord(dispFade, dither);
+                color = textureGrad(tex, texCoord, dcdx, dcdy);
                 color.rgb *= glColor.rgb;
                 colorP = color.rgb;
             }
