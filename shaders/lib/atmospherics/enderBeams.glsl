@@ -28,12 +28,20 @@
             vec3 nViewPosWorld = mat3(gbufferModelViewInverse) * nViewPos;
             vec3 nViewPosWorldM = normalize(vec3(nViewPosWorld.x, 0.0, nViewPosWorld.z));
 
-            float endFlashDirectionFactor = pow(max0(dot(worldEndFlashPosition, nViewPosWorldM)), 12.0);
+            // pow(x,12) = x^8 * x^4 -> 4 muls
+            float fd1 = max0(dot(worldEndFlashPosition, nViewPosWorldM));
+            float fd2 = fd1 * fd1; float fd4 = fd2 * fd2; float fd8 = fd4 * fd4;
+            float endFlashDirectionFactor = fd8 * fd4;
             float endFlashFactor = endFlashIntensity * endFlashDirectionFactor;
 
             beamOrangeIncreaser = mix(beamOrangeIncreaser, 1.0, endFlashFactor);
             beamPurpleReducer = mix(beamPurpleReducer, 1.6, endFlashFactor);
-            beamPow = mix(beamPow, 0.7, endFlashFactor * (pow(VdotUM, 8.0) * 0.75 + 0.25 * pow(1.0 - abs(VdotU) * 0.1 - 0.9 * pow2(VdotU), 30.0)));
+            // pow(VdotUM,8) = 3 muls; pow(_,30) = x^16 * x^8 * x^4 * x^2 -> 7 muls
+            float vu2 = VdotUM * VdotUM; float vu4 = vu2 * vu2; float vu8 = vu4 * vu4;
+            float bp1 = 1.0 - abs(VdotU) * 0.1 - 0.9 * pow2(VdotU);
+            float bp2 = bp1 * bp1; float bp4 = bp2 * bp2; float bp8 = bp4 * bp4; float bp16 = bp8 * bp8;
+            float bp30 = bp16 * bp8 * bp4 * bp2;
+            beamPow = mix(beamPow, 0.7, endFlashFactor * (vu8 * 0.75 + 0.25 * bp30));
             //beamPow = max(beamPow, 0.0001); // fix NaNs
             VdotUM = mix(VdotUM, sqrt2(VdotUM), endFlashFactor);
         #endif
@@ -55,7 +63,9 @@
                 float fireNoise = texture2DLod(noisetex, abs(planeCoord * 0.2) - wind, 0.0).b;
                 noise *= 0.5 * fireNoise + 0.75;
                 //noise = max0(noise); // fix NaNs
-                noise = pow(noise, 1.75) * 2.9 / sampleCount;
+                // pow(x,1.75) = x * sqrt(x) * sqrt(sqrt(x))  (2 sqrts + 2 muls vs pow)
+                float ns_s = sqrt(noise);
+                noise = (noise * ns_s * sqrt(ns_s)) * 2.9 / sampleCount;
                 noise *= VdotUM2;
 
                 vec3 beamColor = beamPurple;
