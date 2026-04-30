@@ -26,7 +26,7 @@ in vec3 vertexPos;
 
 in vec4 glColorRaw;
 
-#if RAIN_PUDDLES >= 1 || defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if RAIN_PUDDLES >= 1 || defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     flat in vec3 binormal, tangent;
 #endif
 
@@ -149,6 +149,10 @@ void DoOceanBlockTweaks(inout float smoothnessD) {
     #include "/lib/materials/materialMethods/generatedNormals.glsl"
 #endif
 
+#ifdef GENERATED_DISPLACEMENT
+    #include "/lib/materials/materialMethods/generatedDisplacement.glsl"
+#endif
+
 #ifdef COATED_TEXTURES
     #include "/lib/materials/materialMethods/coatedTextures.glsl"
 #endif
@@ -221,6 +225,21 @@ void main() {
     float dither = Bayer64(gl_FragCoord.xy);
     #ifdef TAA
         dither = fract(dither + goldenRatio * mod(float(frameCounter), 3600.0));
+    #endif
+
+    #if defined GENERATED_DISPLACEMENT && !defined GBUFFERS_COLORWHEEL
+        // texCoord is a read-only fragment varying, so we only re-sample color at the
+        // displaced atlas coord. GenerateNormals and other neighbor-reads still use the
+        // original coord, which can produce a slight normal/displacement mismatch.
+        if (lViewPos < float(GENERATED_DISPLACEMENT_DISTANCE)) {
+            float dispFade = pow2(lViewPos / float(GENERATED_DISPLACEMENT_DISTANCE));
+            if (dispFade < 1.0 && viewVector.z < 0.0) {
+                vec2 dispCoord = GetGeneratedDisplacementCoord(dispFade, dither);
+                color = texture2D(tex, dispCoord);
+                color.rgb *= glColor.rgb;
+                colorP = color.rgb;
+            }
+        }
     #endif
 
     int subsurfaceMode = 0;
@@ -398,7 +417,7 @@ out vec3 vertexPos;
 
 out vec4 glColorRaw;
 
-#if RAIN_PUDDLES >= 1 || defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if RAIN_PUDDLES >= 1 || defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     flat out vec3 binormal, tangent;
 #endif
 
@@ -420,7 +439,7 @@ out vec4 glColorRaw;
 attribute vec4 mc_Entity;
 attribute vec4 mc_midTexCoord;
 
-#if RAIN_PUDDLES >= 1 || defined GENERATED_NORMALS || defined CUSTOM_PBR
+#if RAIN_PUDDLES >= 1 || defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
     attribute vec4 at_tangent;
 #endif
 
@@ -481,7 +500,7 @@ void main() {
         gl_Position.xy = TAAJitter(gl_Position.xy, gl_Position.w);
     #endif
 
-    #if RAIN_PUDDLES >= 1 || defined GENERATED_NORMALS || defined CUSTOM_PBR
+    #if RAIN_PUDDLES >= 1 || defined GENERATED_NORMALS || defined CUSTOM_PBR || defined GENERATED_DISPLACEMENT_NEEDS_TBN
         binormal = normalize(gl_NormalMatrix * cross(at_tangent.xyz, gl_Normal.xyz) * at_tangent.w);
         tangent  = normalize(gl_NormalMatrix * at_tangent.xyz);
     #endif
