@@ -502,7 +502,9 @@ void DoLighting(inout vec4 color, inout vec3 shadowMult, vec3 playerPos, vec3 vi
                 ambientColorM = mix(ambientColorM, lightColorM, (0.05 + 0.03 * subsurfaceMode) * absNdotN * lightmapY2);
 
                 // Get a bit more natural looking lighting during noon
-                lightColorM *= 1.0 + max0(1.0 - subsurfaceMode) * pow(noonFactor, 20.0) * (pow2(absNdotN) * 0.8 - absNdotE2 * 0.2);
+                // pow(noonFactor, 20) = nf^16 * nf^4 -> 5 muls
+                float nf2 = noonFactor * noonFactor; float nf4 = nf2 * nf2; float nf8 = nf4 * nf4; float nf16 = nf8 * nf8;
+                lightColorM *= 1.0 + max0(1.0 - subsurfaceMode) * (nf16 * nf4) * (pow2(absNdotN) * 0.8 - absNdotE2 * 0.2);
             #endif
         }
     #endif
@@ -570,7 +572,8 @@ void DoLighting(inout vec4 color, inout vec3 shadowMult, vec3 playerPos, vec3 vi
 
         specularHighlight *= highlightMult;
 
-        lightHighlight = isEyeInWater != 1 ? shadowMult : pow(shadowMult, vec3(0.25)) * 0.35;
+        // pow(x, 0.25) = sqrt(sqrt(x)); vec3 sqrt is single hardware op per lane
+        lightHighlight = isEyeInWater != 1 ? shadowMult : sqrt(sqrt(shadowMult)) * 0.35;
         lightHighlight *= (subsurfaceHighlight + specularHighlight) * highlightColor;
 
         #ifdef LIGHT_COLOR_MULTS
