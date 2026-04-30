@@ -32,7 +32,9 @@ void GetCustomMaterials(inout vec4 color, inout vec3 normalM, inout vec2 lmCoord
             parallaxLocalCoord = vTexCoord.st;
 
             normalMap = ReadNormal(vTexCoord.st);
-            parallaxFade += pow(normalMap.a, 64.0);
+            // pow(x, 64) -> 6 muls
+            float pf2 = normalMap.a * normalMap.a; float pf4 = pf2 * pf2; float pf8 = pf4 * pf4; float pf16 = pf8 * pf8; float pf32 = pf16 * pf16;
+            parallaxFade += pf32 * pf32;
 
             if (parallaxFade < 1.0) {
                 float dither = Bayer64(gl_FragCoord.xy);
