@@ -833,6 +833,23 @@ option.GENERATED_NORMAL_MULT.comment=Adjusts the strength of auto-generated bump
 option.COATED_TEXTURE_MULT=Coated Texture Strength
 option.COATED_TEXTURE_MULT.comment=Adjusts the strength of auto-generated dusty details on textures.
 
+option.GENERATED_DISPLACEMENT=Generated Displacement
+option.GENERATED_DISPLACEMENT.comment=Adds auto-generated parallax displacement to terrain from texture brightness. §e[*]§r RP Support option must be set to Integrated PBR+.
+option.GENERATED_DISPLACEMENT_DEPTH=Generated Displacement Depth
+option.GENERATED_DISPLACEMENT_DEPTH.comment=Adjusts the overall depth of auto-generated displacement.
+option.GENERATED_DISPLACEMENT_QUALITY=Generated Displacement Quality
+option.GENERATED_DISPLACEMENT_QUALITY.comment=Adjusts the accuracy of auto-generated displacement. Higher values cost more performance.
+option.GENERATED_DISPLACEMENT_DISTANCE=Generated Displacement Distance
+option.GENERATED_DISPLACEMENT_DISTANCE.comment=Adjusts how far auto-generated displacement is calculated.
+option.GENERATED_DISPLACEMENT_CURVE=Generated Displacement Curve
+option.GENERATED_DISPLACEMENT_CURVE.comment=Adjusts how aggressively subtle texture differences are boosted while stronger differences are compressed.
+option.GENERATED_CASING_REFLECTIVENESS=Generated Casing Reflectiveness
+option.GENERATED_CASING_REFLECTIVENESS.comment=Adjusts reflection and highlight strength for regex-generated casing materials.
+option.GENERATED_CASING_MIN_SMOOTHNESS=Generated Casing Minimum Smoothness
+option.GENERATED_CASING_MIN_SMOOTHNESS.comment=Sets a minimum smoothness for regex-generated casing materials so dark textures can still reflect.
+option.GENERATED_GLASS_REFLECTIVENESS=Generated Glass Reflectiveness
+option.GENERATED_GLASS_REFLECTIVENESS.comment=Adjusts reflection and highlight strength for regex-generated glass materials.
+
 option.GLOWING_ORE_MASTER=§eEnable Glowing Ores
 option.GLOWING_ORE_MASTER.comment=Enables the functionality of glowing ores. §e[*]§r Choosing "Set By Style" will only enable glowing ores if the "Visual Style" is set to "Unbound". §e[*]§r The settings below won't work if this option isn't enabled.
 value.GLOWING_ORE_MASTER.0=OFF

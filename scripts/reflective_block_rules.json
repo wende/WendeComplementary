@@ -1,0 +1,16 @@
+{
+  "rules": [
+    {
+      "name": "glass",
+      "target": "32020",
+      "regex": "(?i)(glass|glasblocks|glaxx)"
+    },
+    {
+      "name": "casings",
+      "target": "11000",
+      "regex": "(?i)(casing|blockmachines)"
+    }
+  ],
+  "exclude_regex": "(?i)(fluid|liquid|water|lava|air|leaves|sapling|flower|grass|dirt|sand|gravel|wood|log|plank)",
+  "insert_before": "block.20000="
+}

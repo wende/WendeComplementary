@@ -94,9 +94,17 @@ if (mat < 11024) {
                                         //color.rgb = avgBorderColor;
                                     #endif
                                 }
-                                else /*if (mat < 10032)*/ { // Modded Light Sources
+                                else /*if (mat < 10032)*/ { // Modded Light Sources (near-white filter)
                                     noSmoothLighting = true; noDirectionalShading = true;
-                                    emission = GetLuminance(color.rgb) * 2.5;
+
+                                    // Filter by min(r,g,b): only near-white pixels pass.
+                                    // White (1,1,1) -> min=1.0, pure blue (0,0,1) -> min=0.0.
+                                    // Tighten threshold to be more selective; lower it to admit tinted whites.
+                                    const float threshold = 0.85;
+
+                                    float m = min(color.r, min(color.g, color.b));
+                                    float gate = float(m >= threshold);
+                                    emission = gate * m * 2.2;
                                 }
                             }
                         }

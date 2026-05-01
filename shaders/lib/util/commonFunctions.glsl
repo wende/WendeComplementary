@@ -22,6 +22,25 @@ float GetLuminance(vec3 color) {
     return dot(color, vec3(0.299, 0.587, 0.114));
 }
 
+// Sam Hocevar branchless RGB->HSV. h,s,v all in [0,1]. h wraps at 1.0.
+vec3 RgbToHsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    const float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+// Returns 1.0 if hsv is inside [hMin,hMax] (with wrap) AND s,v ranges, else 0.0.
+float HsvInRange(vec3 hsv, float hMin, float hMax, float sMin, float sMax, float vMin, float vMax) {
+    float hMatch = (hMin <= hMax)
+        ? float(hsv.x >= hMin && hsv.x <= hMax)
+        : float(hsv.x >= hMin || hsv.x <= hMax); // wrap (e.g. red: 0.95..0.05)
+    float svMatch = float(hsv.y >= sMin && hsv.y <= sMax && hsv.z >= vMin && hsv.z <= vMax);
+    return hMatch * svMatch;
+}
+
 vec3 DoLuminanceCorrection(vec3 color) {
     return color / GetLuminance(color);
 }

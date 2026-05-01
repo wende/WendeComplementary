@@ -128,8 +128,12 @@ if (mat < 32008) {
                     smoothnessG = min1(smoothnessG);
                 }
 
-            } else /*if (mat == 32020)*/ { //
-
+            } else /*if (mat == 32020)*/ { // Generated Glass
+                #include "/lib/materials/specificMaterials/translucents/glass.glsl"
+                float generatedGlassReflectiveness = GENERATED_GLASS_REFLECTIVENESS * 0.01;
+                reflectMult = min(reflectMult * generatedGlassReflectiveness, 1.0);
+                smoothnessG = 1.0;
+                highlightMult = min(highlightMult * generatedGlassReflectiveness, 8.0);
             }
         }
     } else {

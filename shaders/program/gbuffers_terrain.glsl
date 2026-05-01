@@ -242,10 +242,10 @@ void main() {
                 // every downstream sample (color, GenerateNormals, etc.) see the
                 // displaced coord. dcdx/dcdy stay frozen at original derivatives so
                 // textureGrad picks the right mip near sprite seams.
-                texCoord = GetGeneratedDisplacementCoord(dispFade, dither);
+                texCoord = GetGeneratedDisplacementCoord(dispFade, dither, viewVector);
                 color = textureGrad(tex, texCoord, dcdx, dcdy);
-                color.rgb *= glColor.rgb;
                 colorP = color.rgb;
+                color.rgb *= glColor.rgb;
             }
         }
     #endif
@@ -260,6 +260,16 @@ void main() {
     #ifdef IPBR
         vec3 maRecolor = vec3(0.0);
         #include "/lib/materials/materialHandling/terrainIPBR.glsl"
+
+        if (mat == 11000) { // Generated reflective casings
+            #include "/lib/materials/specificMaterials/terrain/ironBlock.glsl"
+            float casingReflectiveness = GENERATED_CASING_REFLECTIVENESS * 0.01;
+            float casingMinSmoothness = GENERATED_CASING_MIN_SMOOTHNESS * 0.01;
+            smoothnessG = min1(max(smoothnessG, casingMinSmoothness) * casingReflectiveness);
+            smoothnessD = min1(max(smoothnessD, casingMinSmoothness) * casingReflectiveness);
+            highlightMult = min(highlightMult * casingReflectiveness, 8.0);
+            if (casingReflectiveness <= 0.0) materialMask = 0.0;
+        }
 
         #ifdef GENERATED_NORMALS
             if (!noGeneratedNormals) GenerateNormals(normalM, colorP);

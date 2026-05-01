@@ -1,0 +1,14 @@
+Automagy:blockHourglassMagic
+Ztones:tile.glaxx
+GoodGenerator:fieldRestrictingGlass
+appliedenergistics2:tile.BlockQuartzGlass
+bartworks:BW_FakeGlasBlocks2
+bartworks:BW_GlasBlocks
+bartworks:BW_GlasBlocks2
+gregtech:gt.blockglass1
+gregtech:gt.blocktintedglass
+miscutils:blockBlockChromaticGlass
+miscutils:blockFrameGtChromaticGlass
+miscutils:tile.playerDoorGlass
+tectech:tile.QuantumGlass
+tectech:tile.quantumGlass
